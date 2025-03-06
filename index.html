@@ -15,26 +15,32 @@
         <form v-if="showForm" @submit.prevent="addTask">
             <label for="title">Заголовок:</label>
             <input type="text" id="title" v-model="newTask.title" required>
-
-            <label for="date-of-creation">Дата создания:</label>
-            <input type="date" id="date-of-creation" v-model="newTask.deadline" required>
-
-
             <label for="description">Описание:</label>
             <textarea id="description" v-model="newTask.description" required></textarea>
-
             <label for="deadline">Дедлайн:</label>
             <input type="date" id="deadline" v-model="newTask.deadline" required>
-
             <button type="submit">Создать задачу</button>
             <button type="button" @click="closeForm()">Отмена</button>
         </form>
     </div>
     <div class="column">
         <h2>Запланированные задачи</h2>
+        <div class="task" v-for="(task, index) in tasks" :key="index">
+            <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
+            <p><strong>Заголовок:</strong> {{ task.title }}</p>
+            <p><strong>Описание:</strong> {{ task.description }}</p>
+            <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+            <button @click="editTask(index)">Редактировать</button>
+            <button @click="deleteTask(index)">Удалить</button>
+            <button @click="moveToInProgress(index)">В работу</button> <!-- Добавляем кнопку "В работу" -->
+        </div>
     </div>
     <div class="column">
         <h2>Задачи в работе</h2>
+        <div class="task" v-for="(task, index) in inProgressTasks" :key="index">
+            <p><strong>Заголовок:</strong> {{ task.title }}</p>
+            <p><strong>Описание:</strong> {{ task.description }}</p>
+            <p><strong>Дедлайн:</strong> {{ task.deadline }}</p></div>
     </div>
     <div class="column">
         <h2>Тестирование</h2>
