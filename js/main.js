@@ -2,8 +2,9 @@ new Vue({
     el: '#app',
     data: {
         showForm: false,
-        isEditing: false, // Флаг для редактирования
-        editIndex: null, // Индекс задачи для редактирования
+        showReturnForm: false,
+        returnReason: '',
+        editIndex: null, // Индекс задачи, которая сейчас редактируется
         newTask: {
             title: '',
             description: '',
@@ -12,103 +13,97 @@ new Vue({
         tasks: [], // Запланированные задачи
         inProgressTasks: [], // Задачи в работе
         testingTasks: [], // Тестирование
-        completedTasks: [], // Выполненные задачи
-        showReturnForm: false, // Флаг для формы возврата
-        returnTaskIndex: null, // Индекс задачи для возврата
-        returnReason: '' // Причина возврата
+        completedTasks: [] // Выполненные задачи
     },
     methods: {
         openForm() {
             this.showForm = true;
-            this.isEditing = false; // Сбрасываем режим редактирования
-            this.newTask = { title: '', description: '', deadline: '' }; // Очищаем форму
         },
         closeForm() {
             this.showForm = false;
-            this.isEditing = false; // Сбрасываем режим редактирования
-            this.newTask = { title: '', description: '', deadline: '' }; // Очищаем форму
+            this.newTask = { title: '', description: '', deadline: '' };
         },
         addTask() {
-            if (this.isEditing) {
-                // Если режим редактирования
-                const editedTask = {
-                    title: this.newTask.title,
-                    description: this.newTask.description,
-                    deadline: this.newTask.deadline,
-                    createdAt: this.tasks[this.editIndex].createdAt // Сохраняем старую дату создания
-                };
-                this.tasks.splice(this.editIndex, 1, editedTask); // Обновляем задачу
-                this.closeForm();
-            } else {
-                // Если новая задача
-                const task = {
-                    title: this.newTask.title,
-                    description: this.newTask.description,
-                    deadline: this.newTask.deadline,
-                    createdAt: new Date().toLocaleDateString()
-                };
-                this.tasks.push(task); // Добавляем задачу в первый столбец
-                this.closeForm();
-            }
-        },
-        editTask(index) {
-            this.isEditing = true; // Включаем режим редактирования
-            this.editIndex = index; // Сохраняем индекс задачи для редактирования
-            // Копируем данные задачи в форму для редактирования
-            const taskToEdit = this.tasks[index];
-            this.newTask = {
-                title: taskToEdit.title,
-                description: taskToEdit.description,
-                deadline: taskToEdit.deadline
+            const newTask = {
+                title: this.newTask.title,
+                description: this.newTask.description,
+                deadline: this.newTask.deadline,
+                createdAt: new Date().toLocaleString(),
+                status: 'Запланировано'
             };
-            this.openForm(); // Открываем форму
+            this.tasks.push(newTask);
+            this.closeForm();
         },
         deleteTask(index) {
-            this.tasks.splice(index, 1); // Удаляем задачу из первого столбца
+            this.tasks = [...this.tasks.slice(0, index), ...this.tasks.slice(index + 1)];
         },
         moveToInProgress(index) {
-            const task = this.tasks.splice(index, 1)[0]; // Удаляем задачу из "Запланированные задачи"
-            this.inProgressTasks.push(task); // Добавляем задачу в "Задачи в работе"
-        },
-        moveToTesting(index) {
-            const task = this.inProgressTasks.splice(index, 1)[0]; // Удаляем задачу из "Задачи в работе"
-            this.testingTasks.push(task); // Добавляем задачу в "Тестирование"
-        },
-        moveToCompleted(index) {
-            const task = this.testingTasks.splice(index, 1)[0]; // Удаляем задачу из "Тестирование"
-
-            // Проверяем дедлайн
-            const deadlineDate = new Date(task.deadline);
-            const currentDate = new Date();
-
-            if (currentDate > deadlineDate) {
-                task.status = 'просрочена'; // Если текущая дата больше дедлайна
-            } else {
-                task.status = 'выполнена в срок'; // Если задача выполнена в срок
+            const task = this.tasks[index];
+            if (task) {
+                task.status = 'В работе';
+                this.inProgressTasks = [...this.inProgressTasks, task];
+                this.tasks = [...this.tasks.slice(0, index), ...this.tasks.slice(index + 1)];
             }
-
-            this.completedTasks.push(task); // Добавляем задачу в "Выполненные задачи"
+        },
+        startEdit(index) {
+            this.editIndex = index; // Переключаем задачу в режим редактирования
+        },
+        saveEdit(index) {
+            if (this.editIndex !== null) {
+                const task = this.tasks[this.editIndex];
+                if (task) {
+                    task.lastEditedAt = new Date().toLocaleString(); // Добавляем временную метку редактирования
+                }
+            }
+            this.editIndex = null; // Выходим из режима редактирования
+        },
+        cancelEdit() {
+            this.editIndex = null; // Отменяем редактирование
         },
         openReturnForm(index) {
-            this.showReturnForm = true; // Показываем форму возврата
-            this.returnTaskIndex = index; // Сохраняем индекс задачи для возврата
-            this.returnReason = ''; // Очищаем причину возврата
+            this.returnIndex = index;
+            this.showReturnForm = true;
         },
         closeReturnForm() {
-            this.showReturnForm = false; // Скрываем форму возврата
-            this.returnTaskIndex = null; // Сбрасываем индекс задачи
-            this.returnReason = ''; // Очищаем причину возврата
+            this.showReturnForm = false;
+            this.returnReason = '';
         },
         returnTaskToInProgress() {
-            if (!this.returnReason.trim()) {
-                alert('Укажите причину возврата!');
-                return;
+            const task = this.testingTasks[this.returnIndex];
+            if (task) {
+                task.returnReason = this.returnReason;
+                task.status = 'Возвращено в работу';
+                task.lastEditedAt = new Date().toLocaleString(); // Добавляем временную метку при возврате
+                this.inProgressTasks = [...this.inProgressTasks, task];
+                this.testingTasks = [
+                    ...this.testingTasks.slice(0, this.returnIndex),
+                    ...this.testingTasks.slice(this.returnIndex + 1)
+                ];
             }
-
-            const task = this.testingTasks.splice(this.returnTaskIndex, 1)[0]; // Удаляем задачу из "Тестирование"
-            task.returnReason = this.returnReason; // Добавляем причину возврата к задаче
-            this.inProgressTasks.push(task); // Добавляем задачу в "Задачи в работе"
-            this.closeReturnForm(); // Закрываем форму
+            this.closeReturnForm();
+        },
+        moveToTesting(index) {
+            const task = this.inProgressTasks[index];
+            if (task) {
+                task.status = 'Тестирование';
+                this.testingTasks = [...this.testingTasks, task];
+                this.inProgressTasks = [
+                    ...this.inProgressTasks.slice(0, index),
+                    ...this.inProgressTasks.slice(index + 1)
+                ];
+            }
+        },
+        moveToCompleted(index) {
+            const task = this.testingTasks[index];
+            if (task) {
+                task.status = 'Выполнено';
+                task.lastEditedAt = new Date().toLocaleString(); // Добавляем временную метку при завершении
+                this.completedTasks = [...this.completedTasks, task];
+                this.testingTasks = [
+                    ...this.testingTasks.slice(0, index),
+                    ...this.testingTasks.slice(index + 1)
+                ];
+            }
         }
     }
 });
