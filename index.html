@@ -10,6 +10,32 @@
 </head>
 <body>
 <div id="app">
+
+    <!-- Поле поиска и кнопка -->
+    <div class="search-container">
+        <input type="text" v-model="searchQuery" placeholder="Поиск задач..." />
+        <button @click="activateSearch">Поиск</button>
+    </div>
+
+    <!-- Модальное окно с результатами поиска -->
+    <div v-if="showSearchModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="closeSearchModal">&times;</span>
+            <h3>Результаты поиска</h3>
+            <div v-if="filteredTasks(tasks).length > 0">
+                <div class="task" v-for="(task, index) in filteredTasks(tasks)" :key="index">
+                    <p><strong>Заголовок:</strong> {{ task.title }}</p>
+                    <p><strong>Описание:</strong> {{ task.description }}</p>
+                    <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+                    <p><strong>Статус:</strong> {{ task.status }}</p>
+                </div>
+            </div>
+            <div v-else>
+                <p>Задачи не найдены.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Колонка для добавления задач -->
     <div class="column">
         <h2>Задачи</h2>
