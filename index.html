@@ -42,7 +42,8 @@
             <p><strong>Заголовок:</strong> {{ task.title }}</p>
             <p><strong>Описание:</strong> {{ task.description }}</p>
             <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
-            <button @click="moveToTesting(index)">Тестирование</button> <!-- Добавляем кнопку -->
+            <p v-if="task.returnReason"><strong>Причина возврата:</strong> {{ task.returnReason }}</p> <!-- Отображаем причину возврата -->
+            <button @click="moveToTesting(index)">Тестирование</button> <!-- Кнопка для перемещения в тестирование -->
         </div>
     </div>
     <div class="column">
@@ -52,10 +53,26 @@
             <p><strong>Заголовок:</strong> {{ task.title }}</p>
             <p><strong>Описание:</strong> {{ task.description }}</p>
             <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+            <button @click="moveToCompleted(index)">Выполнить</button> <!-- Кнопка "Выполнить" -->
+            <button @click="openReturnForm(index)">Вернуть в работу</button> <!-- Кнопка "Вернуть в работу" -->
         </div>
+        <!-- Форма для указания причины возврата -->
+        <form v-if="showReturnForm" @submit.prevent="returnTaskToInProgress">
+            <label for="reason">Причина возврата:</label>
+            <textarea id="reason" v-model="returnReason" required></textarea>
+            <button type="submit">Подтвердить</button>
+            <button type="button" @click="closeReturnForm()">Отмена</button>
+        </form>
     </div>
     <div class="column">
         <h2>Выполненные задачи</h2>
+        <div class="task" v-for="(task, index) in completedTasks" :key="index">
+            <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
+            <p><strong>Заголовок:</strong> {{ task.title }}</p>
+            <p><strong>Описание:</strong> {{ task.description }}</p>
+            <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+            <p><strong>Статус:</strong> {{ task.status }}</p> <!-- Отображаем статус -->
+        </div>
     </div>
 </div>
 </body>
