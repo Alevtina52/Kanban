@@ -38,12 +38,21 @@
     <div class="column">
         <h2>Задачи в работе</h2>
         <div class="task" v-for="(task, index) in inProgressTasks" :key="index">
+            <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
             <p><strong>Заголовок:</strong> {{ task.title }}</p>
             <p><strong>Описание:</strong> {{ task.description }}</p>
-            <p><strong>Дедлайн:</strong> {{ task.deadline }}</p></div>
+            <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+            <button @click="moveToTesting(index)">Тестирование</button> <!-- Добавляем кнопку -->
+        </div>
     </div>
     <div class="column">
         <h2>Тестирование</h2>
+        <div class="task" v-for="(task, index) in testingTasks" :key="index">
+            <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
+            <p><strong>Заголовок:</strong> {{ task.title }}</p>
+            <p><strong>Описание:</strong> {{ task.description }}</p>
+            <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+        </div>
     </div>
     <div class="column">
         <h2>Выполненные задачи</h2>

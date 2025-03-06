@@ -51,6 +51,7 @@ new Vue({
         editTask(index) {
             this.isEditing = true; // Включаем режим редактирования
             this.editIndex = index; // Сохраняем индекс задачи для редактирования
+            // Копируем данные задачи в форму для редактирования
             const taskToEdit = this.tasks[index];
             this.newTask = {
                 title: taskToEdit.title,
@@ -63,8 +64,12 @@ new Vue({
             this.tasks.splice(index, 1); // Удаляем задачу из первого столбца
         },
         moveToInProgress(index) {
-            const task = this.tasks.splice(index, 1)[0]; // Удаляем задачу из первого столбца
-            this.inProgressTasks.push(task); // Добавляем задачу во второй столбец
-        }
+            const task = this.tasks.splice(index, 1)[0]; // Удаляем задачу из "Запланированные задачи"
+            this.inProgressTasks.push(task); // Добавляем задачу в "Задачи в работе"
+        },
+        moveToTesting(index) {
+            const task = this.inProgressTasks.splice(index, 1)[0]; // Удаляем задачу из "Задачи в работе"
+            this.testingTasks.push(task); // Добавляем задачу в "Тестирование"
+        },
     }
 });
