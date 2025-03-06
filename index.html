@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kanban доска</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script defer src="js/main.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="column">
+        <h2>Задачи</h2>
+        <button @click="openForm()">Добавить карточку</button>
+        <form v-if="showForm" @submit.prevent="addTask">
+            <label for="title">Заголовок:</label>
+            <input type="text" id="title" v-model="newTask.title" required>
+
+            <label for="date-of-creation">Дата создания:</label>
+            <input type="date" id="date-of-creation" v-model="newTask.deadline" required>
+
+
+            <label for="description">Описание:</label>
+            <textarea id="description" v-model="newTask.description" required></textarea>
+
+            <label for="deadline">Дедлайн:</label>
+            <input type="date" id="deadline" v-model="newTask.deadline" required>
+
+            <button type="submit">Создать задачу</button>
+            <button type="button" @click="closeForm()">Отмена</button>
+        </form>
+    </div>
+    <div class="column">
+        <h2>Запланированные задачи</h2>
+    </div>
+    <div class="column">
+        <h2>Задачи в работе</h2>
+    </div>
+    <div class="column">
+        <h2>Тестирование</h2>
+    </div>
+    <div class="column">
+        <h2>Выполненные задачи</h2>
+    </div>
+</div>
+</body>
+</html>
