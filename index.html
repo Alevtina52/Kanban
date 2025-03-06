@@ -62,21 +62,16 @@
                 <button type="submit">Сохранить</button>
                 <button type="button" @click="cancelEdit()">Отмена</button>
             </form>
-            <div class="task" v-for="(task, index) in tasks" :key="index">
-                <form v-if="editIndex === index" @submit.prevent="saveEdit(index)">
-                    <!-- Форма редактирования -->
-                </form>
-                <template v-else>
-                    <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
-                    <p><strong>Последнее редактирование:</strong> {{ task.lastEditedAt || 'Не редактировалось' }}</p>
-                    <p><strong>Заголовок:</strong> {{ task.title }}</p>
-                    <p><strong>Описание:</strong> {{ task.description }}</p>
-                    <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
-                    <button @click="startEdit(index)">Редактировать</button>
-                    <button @click="deleteTask(index)">Удалить</button>
-                    <button @click="moveToTesting(index)">Тестирование</button>
-                </template>
-            </div>
+            <template v-else>
+                <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
+                <p><strong>Последнее редактирование:</strong> {{ task.lastEditedAt || 'Не редактировалось' }}</p>
+                <p><strong>Заголовок:</strong> {{ task.title }}</p>
+                <p><strong>Описание:</strong> {{ task.description }}</p>
+                <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+                <button @click="startEdit(index)">Редактировать</button>
+                <button @click="deleteTask(index)">Удалить</button>
+                <button @click="moveToTesting(index)">Тестирование</button>
+            </template>
         </div>
     </div>
     <div class="column">
