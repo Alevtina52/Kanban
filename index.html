@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kanban доска</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
@@ -9,6 +10,7 @@
 </head>
 <body>
 <div id="app">
+    <!-- Колонка для добавления задач -->
     <div class="column">
         <h2>Задачи</h2>
         <button @click="openForm()">Добавить карточку</button>
@@ -23,6 +25,8 @@
             <button type="button" @click="closeForm()">Отмена</button>
         </form>
     </div>
+
+    <!-- Колонка для отображения запланированных задач -->
     <div class="column">
         <h2>Запланированные задачи</h2>
         <div class="task" v-for="(task, index) in tasks" :key="index">
@@ -43,11 +47,13 @@
                 <p><strong>Описание:</strong> {{ task.description }}</p>
                 <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
                 <button @click="startEdit(index)">Редактировать</button>
-                <button @click="deleteTask(index)">Удалить</button>
+                <button @click="deleteTask(index, 'Запланировано')">Удалить</button>
                 <button @click="moveToInProgress(index)">В работу</button>
             </template>
         </div>
     </div>
+
+    <!-- Колонка для отображения задач в работе -->
     <div class="column">
         <h2>Задачи в работе</h2>
         <div class="task" v-for="(task, index) in inProgressTasks" :key="index">
@@ -64,16 +70,19 @@
             </form>
             <template v-else>
                 <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
+                <p v-if="task.returnReason"><strong>Причина возврата:</strong> {{ task.returnReason }}</p>
                 <p><strong>Последнее редактирование:</strong> {{ task.lastEditedAt || 'Не редактировалось' }}</p>
                 <p><strong>Заголовок:</strong> {{ task.title }}</p>
                 <p><strong>Описание:</strong> {{ task.description }}</p>
                 <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
                 <button @click="startEdit(index)">Редактировать</button>
-                <button @click="deleteTask(index)">Удалить</button>
+                <button @click="deleteTask(index, 'В работе')">Удалить</button>
                 <button @click="moveToTesting(index)">Тестирование</button>
             </template>
         </div>
     </div>
+
+    <!-- Колонка для отображения задач в тестировании -->
     <div class="column">
         <h2>Тестирование</h2>
         <div class="task" v-for="(task, index) in testingTasks" :key="index">
@@ -81,10 +90,9 @@
             <p><strong>Заголовок:</strong> {{ task.title }}</p>
             <p><strong>Описание:</strong> {{ task.description }}</p>
             <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
-            <button @click="moveToCompleted(index)">Выполнить</button> <!-- Кнопка "Выполнить" -->
-            <button @click="openReturnForm(index)">Вернуть в работу</button> <!-- Кнопка "Вернуть в работу" -->
+            <button @click="moveToCompleted(index)">Выполнить</button>
+            <button @click="openReturnForm(index)">Вернуть в работу</button>
         </div>
-        <!-- Форма для указания причины возврата -->
         <form v-if="showReturnForm" @submit.prevent="returnTaskToInProgress">
             <label for="reason">Причина возврата:</label>
             <textarea id="reason" v-model="returnReason" required></textarea>
@@ -92,6 +100,8 @@
             <button type="button" @click="closeReturnForm()">Отмена</button>
         </form>
     </div>
+
+    <!-- Колонка для отображения выполненных задач -->
     <div class="column">
         <h2>Выполненные задачи</h2>
         <div class="task" v-for="(task, index) in completedTasks" :key="index">
@@ -99,9 +109,31 @@
             <p><strong>Заголовок:</strong> {{ task.title }}</p>
             <p><strong>Описание:</strong> {{ task.description }}</p>
             <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
-            <p><strong>Статус:</strong> {{ task.status }}</p> <!-- Отображаем статус -->
+            <p><strong>Статус:</strong> {{ task.status }}</p>
+        </div>
+    </div>
+
+    <!-- Кнопка для открытия модального окна с удалёнными задачами (перемещена вниз) -->
+    <div class="button-container">
+        <button @click="showDeletedTasksModal = true">Показать удалённые задачи</button>
+    </div>
+
+    <!-- Модальное окно с удалёнными задачами -->
+    <div v-if="showDeletedTasksModal" class="modal">
+        <div class="modal-content">
+            <span class="close" @click="showDeletedTasksModal = false">&times;</span>
+            <h3>Удалённые задачи</h3>
+            <div v-if="deletedTasks.length > 0">
+                <div class="task" v-for="(task, index) in deletedTasks" :key="index">
+                    <p><strong>Заголовок:</strong> {{ task.title }}</p>
+                    <p><strong>Описание:</strong> {{ task.description }}</p>
+                    <p><strong>Дедлайн:</strong> {{ task.deadline }}</p>
+                    <p><strong>Дата создания:</strong> {{ task.createdAt }}</p>
+                </div>
+            </div>
+            <div v-else>
+                <p>Нет удалённых задач.</p>
+            </div>
         </div>
     </div>
 </div>
-</body>
-</html>
